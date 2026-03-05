@@ -1,0 +1,193 @@
+:root {
+  --toolbar-bg: rgba(10, 14, 20, 0.86);
+  --toolbar-border: rgba(255, 255, 255, 0.18);
+  --text: #eaf2f6;
+  --accent: #ff7a59;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+  color: var(--text);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+#appRoot {
+  position: fixed;
+  inset: 0;
+}
+
+#appRoot canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.toolbar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  max-width: calc(100vw - 18px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid var(--toolbar-border);
+  border-radius: 14px;
+  background: var(--toolbar-bg);
+  backdrop-filter: blur(8px);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.toolbar select,
+.toolbar input[type="color"],
+.toolbar button,
+.toolbar input[type="range"] {
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  padding: 6px 8px;
+}
+
+.toolbar input[type="color"] {
+  width: 46px;
+  height: 34px;
+  padding: 3px;
+}
+
+.toolbar button {
+  cursor: pointer;
+}
+
+.toolbar button.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(255, 122, 89, 0.4) inset;
+}
+
+.shape-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.shape-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  height: 34px;
+  width: 34px;
+  padding: 0;
+  min-width: 34px;
+  justify-content: center;
+}
+
+.shape-icon {
+  display: inline-block;
+  color: #d7e2e8;
+  flex: 0 0 auto;
+}
+
+.icon-rectangle {
+  width: 16px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-radius: 2px;
+}
+
+.icon-circle {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.icon-triangle {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid currentColor;
+}
+
+.icon-pentagon {
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  clip-path: polygon(50% 0, 100% 38%, 82% 100%, 18% 100%, 0 38%);
+}
+
+.icon-hexagon {
+  width: 16px;
+  height: 14px;
+  background: currentColor;
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+}
+
+.icon-bar {
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+#clearBtn {
+  border-color: rgba(255, 122, 89, 0.45);
+}
+
+.range-control {
+  min-width: 148px;
+}
+
+.range-control input[type="range"] {
+  width: 86px;
+}
+
+.range-value {
+  width: 45px;
+  text-align: right;
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 720px) {
+  .toolbar {
+    width: calc(100% - 12px);
+    max-width: calc(100vw - 12px);
+    left: 6px;
+    transform: none;
+    border-radius: 12px;
+  }
+
+  .shape-btn {
+    height: 32px;
+    width: 32px;
+    min-width: 32px;
+  }
+}
