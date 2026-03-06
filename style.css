@@ -534,6 +534,8 @@ body {
   .toolbar-tools,
   .toolbar-sliders {
     justify-content: flex-start;
+    overflow-x: visible;
+    white-space: normal;
   }
 
   .icon-tool,
@@ -549,8 +551,42 @@ body {
     height: 38px;
   }
 
+  .toolbar-tools {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .toolbar-tools .shape-strip {
+    order: 0;
+    width: 100%;
+    justify-content: space-between;
+    margin-right: 0;
+  }
+
+  .toolbar-tools > :not(.shape-strip) {
+    order: 1;
+  }
+
+  .toolbar-tools .shape-btn {
+    flex: 1 1 auto;
+  }
+
+  .toolbar-tools .icon-tool + .icon-tool,
+  .toolbar-tools .color-control,
+  .toolbar-tools #pauseBtn {
+    margin-left: 0;
+  }
+
+  .toolbar-sliders {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
   .range-control {
-    min-width: 240px;
+    min-width: 0;
+    width: 100%;
+    padding-right: 0;
   }
 
   .range-control input[type="range"] {
