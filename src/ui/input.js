@@ -28,6 +28,8 @@ export function createInputController({
   let dragStart = null;
   let dragCurrent = null;
   let dragging = false;
+  let activePointerId = null;
+  const supportsPointerEvents = "PointerEvent" in window;
 
   canvas.style.touchAction = "none";
 
@@ -39,6 +41,7 @@ export function createInputController({
     previewGraphic.clear();
     previewGraphic.position.set(0, 0);
     previewGraphic.rotation = 0;
+    activePointerId = null;
   }
 
   function updatePreview() {
@@ -84,44 +87,20 @@ export function createInputController({
     }
   }
 
-  function onMouseDown(event) {
-    if (event.button !== 0) {
-      return;
-    }
-
-    const pointer = getPointerPosition(event);
-
-    if (isClearMode()) {
-      removeBodyAtPointer(pointer);
-      return;
-    }
-
-    if (isBombMode()) {
-      createBomb(pointer);
-      return;
-    }
-
+  function startDrag(pointer, pointerId) {
+    activePointerId = pointerId;
     dragging = true;
     dragStart = pointer;
     dragCurrent = pointer;
     updatePreview();
   }
 
-  function onMouseMove(event) {
-    if (!dragging) {
+  function finishDrag(pointer, pointerId) {
+    if (pointerId !== activePointerId || !dragging || !dragStart || !dragCurrent) {
       return;
     }
 
-    dragCurrent = getPointerPosition(event);
-    updatePreview();
-  }
-
-  function onMouseUp(event) {
-    if (event.button !== 0 || !dragging || !dragStart || !dragCurrent) {
-      return;
-    }
-
-    dragCurrent = getPointerPosition(event);
+    dragCurrent = pointer;
     const shapeType = getSelectedShape();
     const color = toColorNumber(getSelectedColor());
     const strength = getObjectStrength();
@@ -138,17 +117,232 @@ export function createInputController({
     resetPreview();
   }
 
-  canvas.addEventListener("mousedown", onMouseDown);
-  window.addEventListener("mousemove", onMouseMove);
-  window.addEventListener("mouseup", onMouseUp);
-  window.addEventListener("blur", resetPreview);
+  function releasePointerCapture(pointerId) {
+    if (typeof pointerId !== "number") {
+      return;
+    }
+
+    try {
+      if (canvas.hasPointerCapture?.(pointerId)) {
+        canvas.releasePointerCapture(pointerId);
+      }
+    } catch {
+      // Some browsers can throw if capture state changes before release.
+    }
+  }
+
+  function beginAction(pointer, pointerId) {
+    if (isClearMode()) {
+      removeBodyAtPointer(pointer);
+      return;
+    }
+
+    if (isBombMode()) {
+      createBomb(pointer);
+      return;
+    }
+
+    startDrag(pointer, pointerId);
+  }
+
+  function onPointerDown(event) {
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
+    if (event.isPrimary === false) {
+      return;
+    }
+
+    if (activePointerId !== null && event.pointerId !== activePointerId) {
+      return;
+    }
+
+    event.preventDefault();
+    const pointer = getPointerPosition(event);
+    beginAction(pointer, event.pointerId);
+
+    if (!dragging) {
+      return;
+    }
+
+    try {
+      canvas.setPointerCapture?.(event.pointerId);
+    } catch {
+      // Ignore capture errors for browser/device combinations that do not support it.
+    }
+  }
+
+  function onPointerMove(event) {
+    if (!dragging || event.pointerId !== activePointerId) {
+      return;
+    }
+
+    event.preventDefault();
+    dragCurrent = getPointerPosition(event);
+    updatePreview();
+  }
+
+  function onPointerUp(event) {
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
+    if (event.pointerId !== activePointerId) {
+      return;
+    }
+
+    event.preventDefault();
+    releasePointerCapture(event.pointerId);
+    finishDrag(getPointerPosition(event), event.pointerId);
+  }
+
+  function onPointerCancel(event) {
+    if (event.pointerId !== activePointerId) {
+      return;
+    }
+
+    releasePointerCapture(event.pointerId);
+    resetPreview();
+  }
+
+  function findTouchById(touchList, touchId) {
+    for (let i = 0; i < touchList.length; i += 1) {
+      const touch = touchList.item(i);
+      if (touch && touch.identifier === touchId) {
+        return touch;
+      }
+    }
+    return null;
+  }
+
+  function onTouchStart(event) {
+    if (activePointerId !== null) {
+      return;
+    }
+
+    const touch = event.changedTouches.item(0);
+    if (!touch) {
+      return;
+    }
+
+    event.preventDefault();
+    beginAction(getPointerPosition(touch), touch.identifier);
+  }
+
+  function onTouchMove(event) {
+    if (!dragging || typeof activePointerId !== "number") {
+      return;
+    }
+
+    const touch = findTouchById(event.touches, activePointerId);
+    if (!touch) {
+      return;
+    }
+
+    event.preventDefault();
+    dragCurrent = getPointerPosition(touch);
+    updatePreview();
+  }
+
+  function onTouchEnd(event) {
+    if (typeof activePointerId !== "number") {
+      return;
+    }
+
+    const touch = findTouchById(event.changedTouches, activePointerId);
+    if (!touch) {
+      return;
+    }
+
+    event.preventDefault();
+    finishDrag(getPointerPosition(touch), touch.identifier);
+  }
+
+  function onTouchCancel(event) {
+    if (typeof activePointerId !== "number") {
+      return;
+    }
+
+    const touch = findTouchById(event.changedTouches, activePointerId);
+    if (!touch) {
+      return;
+    }
+
+    event.preventDefault();
+    resetPreview();
+  }
+
+  function onMouseDown(event) {
+    if (event.button !== 0 || activePointerId !== null) {
+      return;
+    }
+
+    event.preventDefault();
+    beginAction(getPointerPosition(event), "mouse");
+  }
+
+  function onMouseMove(event) {
+    if (!dragging || activePointerId !== "mouse") {
+      return;
+    }
+
+    event.preventDefault();
+    dragCurrent = getPointerPosition(event);
+    updatePreview();
+  }
+
+  function onMouseUp(event) {
+    if (event.button !== 0 || activePointerId !== "mouse") {
+      return;
+    }
+
+    event.preventDefault();
+    finishDrag(getPointerPosition(event), "mouse");
+  }
+
+  function onWindowBlur() {
+    if (typeof activePointerId === "number") {
+      releasePointerCapture(activePointerId);
+    }
+    resetPreview();
+  }
+
+  if (supportsPointerEvents) {
+    canvas.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerCancel);
+  } else {
+    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", onTouchEnd, { passive: false });
+    window.addEventListener("touchcancel", onTouchCancel, { passive: false });
+    canvas.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  }
+
+  window.addEventListener("blur", onWindowBlur);
 
   return {
     destroy() {
-      canvas.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-      window.removeEventListener("blur", resetPreview);
+      if (supportsPointerEvents) {
+        canvas.removeEventListener("pointerdown", onPointerDown);
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", onPointerUp);
+        window.removeEventListener("pointercancel", onPointerCancel);
+      } else {
+        canvas.removeEventListener("touchstart", onTouchStart);
+        window.removeEventListener("touchmove", onTouchMove);
+        window.removeEventListener("touchend", onTouchEnd);
+        window.removeEventListener("touchcancel", onTouchCancel);
+        canvas.removeEventListener("mousedown", onMouseDown);
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+      }
+
+      window.removeEventListener("blur", onWindowBlur);
       previewGraphic.destroy();
     }
   };

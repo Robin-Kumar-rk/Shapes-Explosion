@@ -23,6 +23,7 @@ You can draw shapes, place bombs, break objects into fragments, and tune simulat
 - Real physics speed control (`0.5x` to `2.0x`)
 - Object strength control (`0.5x` to `2.5x`) applied per shape at creation time
 - Bomb power control (`0.5x` to `2.5x`)
+- Mobile input support (pointer/touch drag, tap tools, and touch-friendly toolbar sizing)
 - Object limit protection (oldest objects are removed gradually)
 
 ## Run Locally
@@ -42,10 +43,10 @@ python -m http.server 8080
 
 ## Controls
 
-- Shape icons: select shape, then click-drag-release on canvas to create
+- Shape icons: select shape, then click-drag-release (desktop) or tap-drag-release (mobile) on canvas to create
 - Color picker: sets color for newly created shapes
-- Bomb icon: click canvas to spawn a timed bomb
-- Clear icon: click an existing object to remove it
+- Bomb icon: click/tap canvas to spawn a timed bomb
+- Clear icon: click/tap an existing object to remove it
 - Lock icon (Unbreakable): toggles unbreakable mode for newly drawn shapes
 - Pause/Play icon: toggles physics stepping
 - `?` icon: opens controls help window
