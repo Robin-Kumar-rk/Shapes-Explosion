@@ -1,7 +1,7 @@
 import Matter from "https://cdn.jsdelivr.net/npm/matter-js@0.20.0/+esm";
 import { clamp, midpoint } from "../utils/math.js";
 
-const { Bodies, Body, World } = Matter;
+const { Bodies, Body, World, Sleeping } = Matter;
 
 const DEFAULT_BODY_OPTIONS = {
   density: 0.003,
@@ -234,6 +234,15 @@ export function createObjectManager({
       managedBodies.splice(index, 1);
     }
 
+    // Wake nearby/sleeping bodies so stacks re-evaluate immediately after removals.
+    for (const candidate of managedBodies) {
+      const meta = candidate?.plugin?.custom;
+      if (!meta || meta.removed || candidate.isStatic) {
+        continue;
+      }
+      Sleeping.set(candidate, false);
+    }
+
     onBodyRemoved?.(body);
   }
 
@@ -245,7 +254,14 @@ export function createObjectManager({
     return getBodies().filter((body) => body.plugin?.custom?.kind === kind);
   }
 
-  function createShapeFromDrag(shapeType, start, end, color, shapeStrength = 1) {
+  function createShapeFromDrag(
+    shapeType,
+    start,
+    end,
+    color,
+    shapeStrength = 1,
+    unbreakable = false
+  ) {
     const spec = computeDragShape(shapeType, start, end);
     if (!spec) {
       return null;
@@ -262,9 +278,9 @@ export function createObjectManager({
         color,
         {
           kind: "shape",
-          breakable: true,
-          durability: 1.8,
-          strengthFactor: Math.max(0.3, shapeStrength),
+          breakable: !unbreakable,
+          durability: unbreakable ? 8 : 1.8,
+          strengthFactor: unbreakable ? 5 : Math.max(0.3, shapeStrength),
           fragmentDepth: 0
         },
         shapeOptions

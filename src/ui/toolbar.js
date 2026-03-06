@@ -9,7 +9,13 @@ export function createToolbar() {
   const colorPicker = document.getElementById("colorPicker");
   const bombToolButton = document.getElementById("bombTool");
   const clearButton = document.getElementById("clearBtn");
+  const unbreakableButton = document.getElementById("unbreakableBtn");
   const pauseButton = document.getElementById("pauseBtn");
+  const pauseIcon = pauseButton.querySelector(".icon-pause");
+  const playIcon = pauseButton.querySelector(".icon-play");
+  const helpButton = document.getElementById("helpBtn");
+  const helpModal = document.getElementById("helpModal");
+  const helpCloseButton = document.getElementById("helpCloseBtn");
   const speedSlider = document.getElementById("speedSlider");
   const speedValue = document.getElementById("speedValue");
   const strengthSlider = document.getElementById("strengthSlider");
@@ -25,12 +31,18 @@ export function createToolbar() {
 
   let bombMode = false;
   let clearMode = false;
+  let unbreakableMode = false;
   let paused = false;
+  let helpOpen = false;
   let selectedShape = shapeButtons[0]?.dataset.shape || "rectangle";
 
   function renderSelectedShape() {
+    const drawModeActive = !bombMode && !clearMode;
     for (const button of shapeButtons) {
-      button.classList.toggle("active", button.dataset.shape === selectedShape);
+      button.classList.toggle(
+        "active",
+        drawModeActive && button.dataset.shape === selectedShape
+      );
     }
   }
 
@@ -42,14 +54,33 @@ export function createToolbar() {
     clearButton.classList.toggle("active", clearMode);
   }
 
+  function renderUnbreakableMode() {
+    const drawModeActive = !bombMode && !clearMode;
+    unbreakableButton.classList.toggle("active", drawModeActive && unbreakableMode);
+  }
+
+  function renderPauseState() {
+    pauseButton.classList.toggle("active", paused);
+    if (pauseIcon) {
+      pauseIcon.hidden = paused;
+    }
+    if (playIcon) {
+      playIcon.hidden = !paused;
+    }
+    pauseButton.title = paused ? "Resume Physics" : "Pause Physics";
+    pauseButton.setAttribute("aria-label", paused ? "Resume Physics" : "Pause Physics");
+  }
+
   function setBombMode(nextValue) {
     bombMode = Boolean(nextValue);
     if (bombMode) {
       clearMode = false;
     }
+    renderSelectedShape();
     renderBombMode();
     renderClearMode();
-    notify(toolListeners, { bombMode, clearMode });
+    renderUnbreakableMode();
+    notify(toolListeners, { bombMode, clearMode, unbreakableMode });
   }
 
   function setClearMode(nextValue) {
@@ -57,13 +88,31 @@ export function createToolbar() {
     if (clearMode) {
       bombMode = false;
     }
+    renderSelectedShape();
     renderClearMode();
     renderBombMode();
-    notify(toolListeners, { bombMode, clearMode });
+    renderUnbreakableMode();
+    notify(toolListeners, { bombMode, clearMode, unbreakableMode });
+  }
+
+  function setUnbreakableMode(nextValue) {
+    unbreakableMode = Boolean(nextValue);
+    renderUnbreakableMode();
+    notify(toolListeners, { bombMode, clearMode, unbreakableMode });
   }
 
   function updateScaleLabel(target, value) {
     target.textContent = `${value.toFixed(1)}x`;
+  }
+
+  function renderHelpState() {
+    helpButton.classList.toggle("active", helpOpen);
+    helpModal.hidden = !helpOpen;
+  }
+
+  function setHelpOpen(nextValue) {
+    helpOpen = Boolean(nextValue);
+    renderHelpState();
   }
 
   bombToolButton.addEventListener("click", () => {
@@ -87,11 +136,34 @@ export function createToolbar() {
     setClearMode(!clearMode);
   });
 
+  unbreakableButton.addEventListener("click", () => {
+    setUnbreakableMode(!unbreakableMode);
+  });
+
   pauseButton.addEventListener("click", () => {
     paused = !paused;
-    pauseButton.classList.toggle("active", paused);
-    pauseButton.textContent = paused ? "Resume Physics" : "Pause Physics";
+    renderPauseState();
     notify(pauseListeners, paused);
+  });
+
+  helpButton.addEventListener("click", () => {
+    setHelpOpen(!helpOpen);
+  });
+
+  helpCloseButton.addEventListener("click", () => {
+    setHelpOpen(false);
+  });
+
+  helpModal.addEventListener("click", (event) => {
+    if (event.target === helpModal) {
+      setHelpOpen(false);
+    }
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && helpOpen) {
+      setHelpOpen(false);
+    }
   });
 
   speedSlider.addEventListener("input", () => {
@@ -118,6 +190,9 @@ export function createToolbar() {
   renderSelectedShape();
   renderBombMode();
   renderClearMode();
+  renderUnbreakableMode();
+  renderPauseState();
+  renderHelpState();
 
   return {
     getSelectedShape() {
@@ -141,8 +216,12 @@ export function createToolbar() {
     isClearMode() {
       return clearMode;
     },
+    isUnbreakableMode() {
+      return unbreakableMode;
+    },
     setBombMode,
     setClearMode,
+    setUnbreakableMode,
     onPauseChange(listener) {
       pauseListeners.push(listener);
     },

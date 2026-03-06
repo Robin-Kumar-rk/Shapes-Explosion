@@ -13,6 +13,7 @@ export function createInputController({
   getSelectedShape,
   getSelectedColor,
   getObjectStrength,
+  isUnbreakableMode,
   isBombMode,
   isClearMode,
   getBodies,
@@ -124,12 +125,14 @@ export function createInputController({
     const shapeType = getSelectedShape();
     const color = toColorNumber(getSelectedColor());
     const strength = getObjectStrength();
+    const unbreakable = isUnbreakableMode();
     createShape({
       shapeType,
       start: dragStart,
       end: dragCurrent,
       color,
-      strength
+      strength,
+      unbreakable
     });
 
     resetPreview();

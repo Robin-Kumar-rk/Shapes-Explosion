@@ -4,15 +4,22 @@ Browser-based physics sandbox built with **PixiJS** (rendering) and **Matter.js*
 
 You can draw shapes, place bombs, break objects into fragments, and tune simulation parameters in real time.
 
+## Live Demo
+
+- https://robin-kumar-rk.github.io/Shapes-Explosion/
+
 ## Features
 
 - Fullscreen black canvas with gravity and world boundaries
 - Draw-to-create shapes: rectangle, circle, triangle, pentagon, hexagon, bar
 - Live drag preview before shape creation
+- Icon-based toolbar with dedicated tools row and sliders row
 - Bomb tool with delayed explosion, particles, and screen shake
-- Force-based fragmentation with irregular polygon shards
 - Clear tool to remove selected objects by clicking them
-- Pause/resume simulation
+- Unbreakable draw mode (newly drawn objects will not fragment)
+- Force-based fragmentation with irregular polygon shards
+- Pause/resume simulation using icon toggle
+- In-app help modal (`?`) with control instructions
 - Real physics speed control (`0.5x` to `2.0x`)
 - Object strength control (`0.5x` to `2.5x`) applied per shape at creation time
 - Bomb power control (`0.5x` to `2.5x`)
@@ -35,19 +42,22 @@ python -m http.server 8080
 
 ## Controls
 
-- Shape bar: select shape icon, then click-drag-release on canvas
-- Color picker: sets fill color for newly created shapes
-- Bomb Tool: click canvas to spawn bomb
-- Clear Tool: click an existing object to remove it
-- Pause Physics: toggles physics stepping
+- Shape icons: select shape, then click-drag-release on canvas to create
+- Color picker: sets color for newly created shapes
+- Bomb icon: click canvas to spawn a timed bomb
+- Clear icon: click an existing object to remove it
+- Lock icon (Unbreakable): toggles unbreakable mode for newly drawn shapes
+- Pause/Play icon: toggles physics stepping
+- `?` icon: opens controls help window
 - Speed slider: changes simulation timestep speed
-- Strength slider: sets strength for future shapes only
-- Bomb slider: changes explosion radius/force/fragment impulse/FX intensity
+- Strength slider: sets break resistance for future shapes only
+- Bomb slider: changes explosion radius, force, fragmentation impulse, and FX intensity
 
 ## Notes
 
 - Strength is stored per object when it is created.
 - Changing the strength slider does not retroactively update already spawned objects.
+- Unbreakable mode applies only to objects drawn while the mode is enabled.
 - Bombs use the current bomb power at detonation.
 
 ## Project Structure

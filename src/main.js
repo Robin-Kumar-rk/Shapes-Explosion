@@ -52,12 +52,20 @@ createInputController({
   getSelectedShape: toolbar.getSelectedShape,
   getSelectedColor: toolbar.getSelectedColor,
   getObjectStrength: toolbar.getObjectStrength,
+  isUnbreakableMode: toolbar.isUnbreakableMode,
   isBombMode: toolbar.isBombMode,
   isClearMode: toolbar.isClearMode,
   getBodies: objectManager.getBodies,
   removeBody: objectManager.removeBody,
-  createShape: ({ shapeType, start, end, color, strength }) =>
-    objectManager.createShapeFromDrag(shapeType, start, end, color, strength),
+  createShape: ({ shapeType, start, end, color, strength, unbreakable }) =>
+    objectManager.createShapeFromDrag(
+      shapeType,
+      start,
+      end,
+      color,
+      strength,
+      unbreakable
+    ),
   createBomb: (position) => objectManager.createBomb(position.x, position.y)
 });
 

@@ -8,55 +8,146 @@
 </head>
 <body>
   <header class="toolbar" id="toolbar">
-    <div class="shape-strip" id="shapeStrip" role="group" aria-label="Shape selection">
-      <button class="shape-btn active" data-shape="rectangle" type="button" title="Rectangle" aria-label="Rectangle">
-        <span class="shape-icon icon-rectangle" aria-hidden="true"></span>
+    <div class="toolbar-row toolbar-tools">
+      <div class="shape-strip" id="shapeStrip" role="group" aria-label="Shape selection">
+        <button class="shape-btn active" data-shape="rectangle" type="button" title="Rectangle" aria-label="Rectangle">
+          <span class="shape-icon icon-rectangle" aria-hidden="true"></span>
+        </button>
+        <button class="shape-btn" data-shape="circle" type="button" title="Circle" aria-label="Circle">
+          <span class="shape-icon icon-circle" aria-hidden="true"></span>
+        </button>
+        <button class="shape-btn" data-shape="triangle" type="button" title="Triangle" aria-label="Triangle">
+          <span class="shape-icon icon-triangle" aria-hidden="true"></span>
+        </button>
+        <button class="shape-btn" data-shape="pentagon" type="button" title="Pentagon" aria-label="Pentagon">
+          <span class="shape-icon icon-pentagon" aria-hidden="true"></span>
+        </button>
+        <button class="shape-btn" data-shape="hexagon" type="button" title="Hexagon" aria-label="Hexagon">
+          <span class="shape-icon icon-hexagon" aria-hidden="true"></span>
+        </button>
+        <button class="shape-btn" data-shape="bar" type="button" title="Line / Bar" aria-label="Line or bar">
+          <span class="shape-icon icon-bar" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <button id="bombTool" class="icon-tool" type="button" title="Bomb Tool" aria-label="Bomb Tool">
+        <span class="tool-icon icon-bomb" aria-hidden="true"></span>
       </button>
-      <button class="shape-btn" data-shape="circle" type="button" title="Circle" aria-label="Circle">
-        <span class="shape-icon icon-circle" aria-hidden="true"></span>
+      <button id="clearBtn" class="icon-tool" type="button" title="Clear Tool" aria-label="Clear Tool">
+        <span class="tool-icon icon-delete" aria-hidden="true"></span>
       </button>
-      <button class="shape-btn" data-shape="triangle" type="button" title="Triangle" aria-label="Triangle">
-        <span class="shape-icon icon-triangle" aria-hidden="true"></span>
+      <button id="unbreakableBtn" class="icon-tool" type="button" title="Unbreakable Draw" aria-label="Unbreakable Draw">
+        <span class="tool-icon icon-lock" aria-hidden="true"></span>
       </button>
-      <button class="shape-btn" data-shape="pentagon" type="button" title="Pentagon" aria-label="Pentagon">
-        <span class="shape-icon icon-pentagon" aria-hidden="true"></span>
+
+      <label class="color-control" title="Shape Color">
+        <input id="colorPicker" type="color" value="#56e39f" aria-label="Shape Color" title="Shape Color">
+      </label>
+
+      <button id="pauseBtn" class="icon-tool" type="button" title="Pause Physics" aria-label="Pause Physics">
+        <span class="tool-icon icon-pause" aria-hidden="true"></span>
+        <span class="tool-icon icon-play" aria-hidden="true" hidden></span>
       </button>
-      <button class="shape-btn" data-shape="hexagon" type="button" title="Hexagon" aria-label="Hexagon">
-        <span class="shape-icon icon-hexagon" aria-hidden="true"></span>
-      </button>
-      <button class="shape-btn" data-shape="bar" type="button" title="Line / Bar" aria-label="Line or bar">
-        <span class="shape-icon icon-bar" aria-hidden="true"></span>
+      <button id="helpBtn" class="icon-tool" type="button" title="Help" aria-label="Help">
+        <span class="tool-icon icon-help" aria-hidden="true">?</span>
       </button>
     </div>
 
-    <button id="bombTool" type="button">Bomb Tool</button>
-    <button id="clearBtn" type="button">Clear Tool</button>
+    <div class="toolbar-row toolbar-sliders">
+      <label class="range-control speed-control">
+        Speed
+        <input id="speedSlider" type="range" min="0.5" max="2" step="0.1" value="1">
+        <span class="range-value" id="speedValue">1.0x</span>
+      </label>
 
-    <label>
-      Color
-      <input id="colorPicker" type="color" value="#56e39f">
-    </label>
+      <label class="range-control">
+        Strength
+        <input id="strengthSlider" type="range" min="0.5" max="2.5" step="0.1" value="1">
+        <span class="range-value" id="strengthValue">1.0x</span>
+      </label>
 
-    <button id="pauseBtn" type="button">Pause Physics</button>
-
-    <label class="range-control speed-control">
-      Speed
-      <input id="speedSlider" type="range" min="0.5" max="2" step="0.1" value="1">
-      <span class="range-value" id="speedValue">1.0x</span>
-    </label>
-
-    <label class="range-control">
-      Strength
-      <input id="strengthSlider" type="range" min="0.5" max="2.5" step="0.1" value="1">
-      <span class="range-value" id="strengthValue">1.0x</span>
-    </label>
-
-    <label class="range-control">
-      Bomb
-      <input id="bombPowerSlider" type="range" min="0.5" max="2.5" step="0.1" value="1">
-      <span class="range-value" id="bombPowerValue">1.0x</span>
-    </label>
+      <label class="range-control">
+        Bomb
+        <input id="bombPowerSlider" type="range" min="0.5" max="2.5" step="0.1" value="1">
+        <span class="range-value" id="bombPowerValue">1.0x</span>
+      </label>
+    </div>
   </header>
+
+  <div id="helpModal" class="help-modal" hidden>
+    <div class="help-panel" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="help-header">
+        <h2 id="helpTitle">Controls Help</h2>
+        <button id="helpCloseBtn" class="icon-tool help-close" type="button" title="Close Help" aria-label="Close Help">x</button>
+      </div>
+
+      <div class="help-content">
+        <h3>Buttons</h3>
+        <ul>
+          <li>
+            <span class="help-icon-pack" aria-hidden="true">
+              <span class="shape-icon icon-rectangle"></span>
+              <span class="shape-icon icon-circle"></span>
+              <span class="shape-icon icon-triangle"></span>
+              <span class="shape-icon icon-pentagon"></span>
+              <span class="shape-icon icon-hexagon"></span>
+              <span class="shape-icon icon-bar"></span>
+            </span>
+            <span>Shape icons: select drawing shape (rectangle, circle, triangle, pentagon, hexagon, bar).</span>
+          </li>
+          <li>
+            <span class="help-icon-cell" aria-hidden="true"><span class="tool-icon icon-bomb"></span></span>
+            <span>Bomb: click canvas to spawn a timed bomb that explodes.</span>
+          </li>
+          <li>
+            <span class="help-icon-cell" aria-hidden="true"><span class="tool-icon icon-delete"></span></span>
+            <span>Clear: click any object to remove it.</span>
+          </li>
+          <li>
+            <span class="help-icon-cell" aria-hidden="true"><span class="tool-icon icon-lock"></span></span>
+            <span>Unbreakable (lock): new drawn objects become non-breakable.</span>
+          </li>
+          <li>
+            <span class="help-icon-cell" aria-hidden="true"><span class="icon-color-chip"></span></span>
+            <span>Color picker: sets color for new shapes.</span>
+          </li>
+          <li>
+            <span class="help-icon-pack" aria-hidden="true">
+              <span class="tool-icon icon-pause"></span>
+              <span class="tool-icon icon-play"></span>
+            </span>
+            <span>Pause/Resume: pauses or resumes physics simulation.</span>
+          </li>
+          <li>
+            <span class="help-icon-cell" aria-hidden="true"><span class="tool-icon icon-help">?</span></span>
+            <span>Help (?): opens this help window.</span>
+          </li>
+        </ul>
+
+        <h3>Sliders</h3>
+        <ul>
+          <li>
+            <span class="help-icon-cell" aria-hidden="true"><span class="icon-slider-glyph"></span></span>
+            <span>Speed: controls physics simulation speed.</span>
+          </li>
+          <li>
+            <span class="help-icon-cell" aria-hidden="true"><span class="icon-slider-glyph"></span></span>
+            <span>Strength: sets break resistance for newly created shapes.</span>
+          </li>
+          <li>
+            <span class="help-icon-cell" aria-hidden="true"><span class="icon-slider-glyph"></span></span>
+            <span>Bomb: controls explosion power (radius/force/effects).</span>
+          </li>
+        </ul>
+
+        <h3>Tips</h3>
+        <ul>
+          <li>Strength and Unbreakable apply only to objects drawn after changing them.</li>
+          <li>Bomb and Clear are tool modes and are mutually exclusive with drawing mode.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
   <main id="appRoot"></main>
   <script type="module" src="./src/main.js"></script>
